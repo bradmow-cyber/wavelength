@@ -1,0 +1,45 @@
+{
+  "name": "wavelength",
+  "productName": "Wavelength",
+  "version": "1.0.0",
+  "description": "Open-source desktop music player: paste a Spotify playlist link, listen through YouTube audio, with cover-reactive visuals and synced lyrics.",
+  "main": "src/main.js",
+  "author": "Wavelength contributors",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win --dir",
+    "dist": "electron-builder --win",
+    "test": "node test/lib.test.js"
+  },
+  "build": {
+    "appId": "app.wavelength.player",
+    "productName": "Wavelength",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "artifactName": "Wavelength-${version}-${os}.${ext}"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.0.0"
+  }
+}

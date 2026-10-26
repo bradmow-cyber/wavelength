@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wavelength</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- cover-driven backdrop -->
+  <div id="backdrop" aria-hidden="true">
+    <div class="bg-layer" id="bgA"></div>
+    <div class="bg-layer" id="bgB"></div>
+    <div id="bg-tint"></div>
+    <div id="bg-pulse"></div>
+    <div id="bg-grain"></div>
+  </div>
+
+  <header id="titlebar">
+    <div class="brand"><span class="logo" aria-hidden="true"></span>Wavelength</div>
+    <div class="drag"></div>
+    <div id="status-pill" hidden></div>
+    <button class="icon-btn" id="btn-immersive" title="Immersive view (F)" data-icon="expand"></button>
+    <div class="win-controls">
+      <button id="win-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2 6h8"/></svg></button>
+      <button id="win-max" aria-label="Maximize"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7"/></svg></button>
+      <button id="win-close" class="close" aria-label="Close"><svg viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7"/></svg></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- LEFT: playlists -->
+    <aside id="sidebar" class="glass">
+      <form id="add-form" autocomplete="off">
+        <label for="add-input">Add from Spotify</label>
+        <div class="add-row">
+          <input id="add-input" type="text" spellcheck="false" placeholder="Paste a playlist or album link" />
+          <button id="add-btn" type="submit" class="accent-btn" title="Add playlist" data-icon="plus"></button>
+        </div>
+      </form>
+      <div class="side-title">Your library</div>
+      <nav id="playlists"></nav>
+      <div class="side-foot">
+        <button class="ghost-btn" id="btn-settings"><span data-icon="settings"></span>Settings</button>
+      </div>
+    </aside>
+
+    <!-- CENTER: tracks -->
+    <section id="library" class="glass">
+      <div id="empty-state">
+        <div class="empty-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <h1>Bring your Spotify playlists. Skip the ads.</h1>
+        <p>Paste a public Spotify playlist or album link on the left. Wavelength finds each song on YouTube, plays the audio, shows the cover-driven visuals and scrolls the lyrics in time.</p>
+        <p class="hint">Tip: you can also press <kbd>Ctrl</kbd>+<kbd>V</kbd> anywhere with a Spotify link on your clipboard.</p>
+      </div>
+
+      <div id="pl-view" hidden>
+        <div class="pl-head">
+          <img id="pl-cover" alt="" />
+          <div class="pl-info">
+            <div class="pl-kind" id="pl-kind">Playlist</div>
+            <h1 id="pl-name"></h1>
+            <div class="pl-sub" id="pl-sub"></div>
+            <div class="pl-actions">
+              <button class="accent-btn big" id="pl-play"><span data-icon="play"></span>Play</button>
+              <button class="ghost-btn" id="pl-shuffle"><span data-icon="shuffle"></span>Shuffle</button>
+              <button class="icon-btn" id="pl-refresh" title="Re-import from Spotify" data-icon="refresh"></button>
+              <button class="icon-btn danger" id="pl-remove" title="Remove from library" data-icon="trash"></button>
+            </div>
+          </div>
+        </div>
+        <div id="limit-note" hidden></div>
+        <div class="filter-row"><input id="filter" type="text" placeholder="Filter tracks…" spellcheck="false" /></div>
+        <div class="track-head"><span>#</span><span>Title</span><span class="dur">Time</span></div>
+        <div id="tracks"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: now playing -->
+    <section id="now" class="glass">
+      <div id="art-wrap">
+        <canvas id="viz"></canvas>
+        <div id="cover-frame">
+          <img id="cover" alt="" />
+          <div id="cover-ph"><span data-icon="note"></span></div>
+          <div id="spinner" hidden></div>
+        </div>
+      </div>
+      <div id="np-meta">
+        <h2 id="np-title">Nothing playing</h2>
+        <div id="np-artist">Pick a song to begin</div>
+        <div id="np-source"></div>
+      </div>
+      <div id="lyrics-head">
+        <span>Lyrics</span>
+        <span id="lyrics-state"></span>
+        <span class="spacer"></span>
+        <div id="offset-ctl" hidden>
+          <button class="mini" id="off-minus" title="Lyrics appear earlier">−</button>
+          <span id="off-val">0.0s</span>
+          <button class="mini" id="off-plus" title="Lyrics appear later">+</button>
+        </div>
+      </div>
+      <div id="lyrics" tabindex="-1"></div>
+    </section>
+  </main>
+
+  <!-- PLAYER BAR -->
+  <footer id="player" class="glass">
+    <div class="p-left">
+      <img id="mini-cover" alt="" />
+      <div class="p-text">
+        <div id="mini-title">Nothing playing</div>
+        <div id="mini-artist"></div>
+      </div>
+    </div>
+    <div class="p-center">
+      <div class="controls">
+        <button class="icon-btn toggle" id="btn-shuffle" title="Shuffle (S)" data-icon="shuffle"></button>
+        <button class="icon-btn" id="btn-prev" title="Previous" data-icon="prev"></button>
+        <button class="play-btn" id="btn-play" title="Play / Pause (Space)" data-icon="play"></button>
+        <button class="icon-btn" id="btn-next" title="Next" data-icon="next"></button>
+        <button class="icon-btn toggle" id="btn-repeat" title="Repeat (R)" data-icon="repeat"></button>
+      </div>
+      <div class="seek">
+        <span id="t-cur">0:00</span>
+        <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Seek" />
+        <span id="t-dur">0:00</span>
+      </div>
+    </div>
+    <div class="p-right">
+      <button class="icon-btn" id="btn-rematch" title="Wrong song? Try another YouTube match" data-icon="swap" disabled></button>
+      <button class="icon-btn" id="btn-mute" title="Mute (M)" data-icon="volume"></button>
+      <input id="volume" type="range" min="0" max="100" value="80" aria-label="Volume" />
+    </div>
+  </footer>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <!-- SETTINGS -->
+  <dialog id="settings-dlg">
+    <form method="dialog" class="dlg-card" id="settings-form">
+      <h3>Settings</h3>
+
+      <div class="field-group">
+        <h4>Spotify API <span class="optional">optional</span></h4>
+        <p>Without keys Wavelength reads the first 100 tracks of a playlist. For bigger playlists create a free app at
+          <a href="#" data-ext="https://developer.spotify.com/dashboard">developer.spotify.com/dashboard</a>
+          and paste its keys here. They stay on this computer.</p>
+        <label>Client ID<input id="set-cid" type="text" spellcheck="false" autocomplete="off" /></label>
+        <label>Client Secret<input id="set-csec" type="password" spellcheck="false" autocomplete="off" /></label>
+      </div>
+
+      <div class="field-group">
+        <h4>Audio cache</h4>
+        <p id="cache-info">Calculating…</p>
+        <label>Keep up to <input id="set-cache" type="number" min="256" max="51200" step="256" /> MB</label>
+        <button type="button" class="ghost-btn" id="btn-clear-cache">Clear cached audio</button>
+      </div>
+
+      <div class="field-group">
+        <h4>YouTube helper (yt-dlp)</h4>
+        <p id="ytdlp-info">Checking…</p>
+        <button type="button" class="ghost-btn" id="btn-ytdlp-update">Update now</button>
+        <p class="fine">YouTube changes often; Wavelength updates yt-dlp automatically once every 12 hours. If songs stop loading, press Update.</p>
+      </div>
+
+      <div class="dlg-actions">
+        <button type="button" class="ghost-btn" id="btn-settings-cancel">Cancel</button>
+        <button type="submit" class="accent-btn" value="save">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
+  <script src="app.js"></script>
+</body>
+</html>
