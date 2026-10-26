@@ -9,37 +9,31 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --win --dir",
-    "dist": "electron-builder --win",
+    "dist": "electron-builder --win --publish never",
     "test": "node test/lib.test.js"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.0.0"
   },
   "build": {
     "appId": "app.wavelength.player",
     "productName": "Wavelength",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "src/**/*",
-      "build/icon.png",
-      "package.json"
-    ],
+    "directories": { "output": "dist" },
+    "files": ["src/**/*", "build/icon.png", "package.json"],
     "win": {
       "icon": "build/icon.ico",
-      "target": [
-        "nsis",
-        "portable"
-      ],
+      "target": ["nsis", "portable"],
       "signAndEditExecutable": false
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
+      "createDesktopShortcut": true,
+      "artifactName": "Wavelength-Setup-${version}.${ext}"
     },
-    "artifactName": "Wavelength-${version}-${os}.${ext}"
-  },
-  "devDependencies": {
-    "electron": "^40.0.0",
-    "electron-builder": "^26.0.0"
+    "portable": {
+      "artifactName": "Wavelength-Portable-${version}.${ext}"
+    }
   }
 }
